@@ -543,8 +543,12 @@ class Nuki:
             # The pairing handler is not encrypted
             command, data = await self._parse_command(bytes(data))
         else:
-            uncrypted = self._decrypt_command(bytes(data))
-            command, data = await self._parse_command(uncrypted)
+            try:
+                uncrypted = self._decrypt_command(bytes(data))
+                command, data = await self._parse_command(uncrypted)
+            except:
+                # If decrypting failed, it might not have been encrypted in the first place.
+                command, data = await self._parse_command(bytes(data))
 
         if command == NukiCommand.ERROR_REPORT:
             if data == PairingError.NOT_PAIRING.value:
